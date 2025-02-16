@@ -1,0 +1,9 @@
+# Environment name
+lib
+
+# Data folder
+data/law_nondup copy 12.json
+
+# Others
+__pycache__ 
+
