@@ -7,3 +7,4 @@ API_KEY = ""
 
 # For testing
 DUMMY_QUERY = "Lưu trú là việc công dân sinh sống tại một địa điểm thuộc đơn vị hành chính cấp xã hoặc đơn vị hành chính cấp huyện ở nơi không có đơn vị hành chính cấp xã (sau đây gọi chung là đơn vị hành chính cấp xã), đúng hay sai?"
+EASTER_EGG = "Đm Huân"

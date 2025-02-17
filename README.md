@@ -26,6 +26,7 @@ Remember to remove the api_key afterwards!!!
 ## To-do list
 
 - (Further) restrict the no of relevant doc display
-- Change to Vietnamese
+- Change to Vietnamese --> DONE
 - Make it more pretty??? Idk 
+- Add other features: Feedback to email?, Report error??
 

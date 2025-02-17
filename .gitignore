@@ -2,8 +2,10 @@
 lib
 
 # Data folder
-data/law_nondup copy 12.json
+data/*
 
 # Others
 __pycache__ 
+model_predictions.json 
+
 
