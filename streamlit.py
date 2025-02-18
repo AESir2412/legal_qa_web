@@ -2,12 +2,21 @@ import streamlit as st
 import os 
 from retrieval import bert_ensemble
 from qa import generate_answer
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 from bm25 import bm25_compute_docs, _load_bm25_model, _load_article_info
 
 def main():
     bm25_model = _load_bm25_model()
     article_info = _load_article_info()
+    client = openai.OpenAI(
+        api_key=API_KEY
+    )
 
     st.title("Hệ thống Hỏi đáp pháp luật tự động")  
     st.write("Hãy đưa ra bất cứ câu hỏi pháp lý nào, chúng tôi sẽ trả lời dựa trên các điều luật liên quan.")
@@ -25,7 +34,7 @@ def main():
             if relevant_docs:
                 with st.spinner("Tạo câu trả lời..."):
                     # Generate and display the answer
-                    answer = generate_answer(relevant_docs, user_question)
+                    answer = generate_answer(client, relevant_docs, user_question)
                     st.subheader("Trả lời:")
                     st.write(answer)
 
@@ -38,7 +47,7 @@ def main():
                     
                     # Add content in a dropdown
                     with st.expander("Xem nội dung"):
-                        st.write(doc['content'])
+                        st.write(doc['article_title'] + "\n" + doc['content'])
             else:
                 st.error("Không tìm thấy nội dung liên quan nào. Hãy thử xem lại nội dung câu hỏi của bạn.")
         else:

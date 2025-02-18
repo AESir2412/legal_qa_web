@@ -18,10 +18,15 @@ pip install -r requirements.txt
 
 Run?
 ```
+python bm25.py
 streamlit run streamlit.py
 ```
 
 Remember to remove the api_key afterwards!!!
+
+## Note
+- Dùng bản data14 (không dùng 12 nữa)
+
 
 ## To-do list
 
@@ -30,3 +35,5 @@ Remember to remove the api_key afterwards!!!
 - Make it more pretty??? Idk 
 - Add other features: Feedback to email?, Report error??
 
+
+- Nên làm thêm cái stream generate

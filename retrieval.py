@@ -17,7 +17,7 @@ load_dotenv()
 
 TOKEN_BERT_MODEL = os.getenv("TOKEN_BERT_MODEL")
 BERT_MODEL = os.getenv("BERT_MODEL")
-FINAL_K = os.getenv("FINAL_K")
+FINAL_K = int(os.getenv("FINAL_K"))
 
 print(torch.cuda.is_available())  
 torch.cuda.set_device(0)
@@ -190,7 +190,7 @@ class CustomTrainer(Trainer):
 # )
 
 training_args = TrainingArguments(
-    output_dir = '/kaggle/working/',
+    output_dir = '.',
     per_device_eval_batch_size= 1,
     disable_tqdm = False
 )

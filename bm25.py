@@ -9,7 +9,7 @@ import joblib
 load_dotenv()
 
 LAW_PATH = os.getenv("LAW_PATH")
-K = os.getenv("K")
+K = int(os.getenv("K"))
 
 
 def _load_json(path):
@@ -33,8 +33,9 @@ def preprocess_articles(data):
         for chapter in doc["content"]:
             for section in chapter["content_Chapter"]:
                 for article in section["content_Section"]:
+                    article_title = _pre_processing(article["title_Article"])
                     content = _pre_processing(article["content_Article"])
-                    tokenized_text = _tokenize(content)
+                    tokenized_text = _tokenize(article_title + " " + content)
                     articles.append(tokenized_text)
                     article_info.append({
                         "doc_id": doc["id"],
@@ -45,6 +46,7 @@ def preprocess_articles(data):
                         "section_id": section["id_Section"],
                         "section_title": section["title_Section"],
                         "article_id": article["id_Article"],
+                        "article_title": article["title_Article"],
                         "content": article["content_Article"]
                     })
     

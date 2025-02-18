@@ -1,38 +1,11 @@
-import openai
-import os
-from dotenv import load_dotenv
+from prompt import create_message
 
-load_dotenv()
-
-API_KEY = os.getenv("API_KEY")
-
-def generate_answer(relevant_docs, user_question):
-   # Construct the prompt for the GPT model
-    prompt = "Dựa vào những điều luật sau:\n"
-    for doc in relevant_docs:
-        prompt += f"- Điều {doc['article_id']} {doc['title']}: {doc['content']}\n"
-    
-    prompt += f"\nHãy trả lời câu hỏi sau: {user_question}\n"
-
-    # Extra requirments
-    prompt += """Nếu không thể trả lời câu hỏi dựa vào các điều luật trên, hãy phản hồi rằng thông tin hiện tại chưa đủ để đưa ra 
-                 câu trả lời chính xác. Nếu trả lời được, hãy nói rõ căn cứ ở đâu, văn bản nào trước khi trả lời\n"""
-
-    client = openai.OpenAI(
-        api_key=API_KEY
-    )
-
+def generate_answer(client, relevant_docs, user_question):
+    messages = create_message(relevant_docs, user_question)
     chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
+        messages=messages,
         model="gpt-4o-mini",
     )
-
-    answer = chat_completion.choices[0].message.content.strip()
-
+    
     print("Done QA!")
-    return answer
+    return chat_completion.choices[0].message.content.strip()
