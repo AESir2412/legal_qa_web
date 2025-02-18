@@ -3,7 +3,7 @@ A basic Streamlit Website for Legal QA
 
 ## Installation
 
-Pull the repo first, add data to folder data (law_nondup copy 12), add API_KEY in the constant.py
+Pull the repo first, add data to folder data (law_nondup copy 14), add .env file
 
 Create venv
 ```
@@ -16,7 +16,12 @@ Install requirements
 pip install -r requirements.txt
 ```
 
-Run?
+Run BM25 
+```
+python bm25.py
+```
+
+Run StreamlitStreamlit
 ```
 python bm25.py
 streamlit run streamlit.py
@@ -25,7 +30,7 @@ streamlit run streamlit.py
 Remember to remove the api_key afterwards!!!
 
 ## Note
-- Dùng bản data14 (không dùng 12 nữa)
+- Dùng bản data14 (không dùng 12 nữa) --> DONEDONE
 
 
 ## To-do list
@@ -34,6 +39,4 @@ Remember to remove the api_key afterwards!!!
 - Change to Vietnamese --> DONE
 - Make it more pretty??? Idk 
 - Add other features: Feedback to email?, Report error??
-
-
 - Nên làm thêm cái stream generate

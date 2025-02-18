@@ -1,4 +1,4 @@
-# Environment name
+# venv name
 lib
 
 # Data folder
@@ -6,7 +6,7 @@ data/*
 
 # Others
 __pycache__ 
-model_predictions.json 
+*.json 
 
 # environment
 .env
