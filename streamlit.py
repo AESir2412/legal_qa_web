@@ -1,51 +1,60 @@
 import streamlit as st
-import os 
+import os
 from retrieval import bert_ensemble
 from qa import generate_answer
 import openai
 from dotenv import load_dotenv
+from bm25 import _load_bm25_model, _load_article_info
 
 load_dotenv()
-
 API_KEY = os.getenv("API_KEY")
 
-from bm25 import bm25_compute_docs, _load_bm25_model, _load_article_info
+# Hàm load model có cache để tránh load lại nhiều lần
+@st.cache_resource
+def load_models():
+    print("⚡ Đang khởi động hệ thống...")
 
-def main():
+    print("🔄 Đang load BM25 model...")
     bm25_model = _load_bm25_model()
-    article_info = _load_article_info()
-    client = openai.OpenAI(
-        api_key=API_KEY
-    )
+    print("✅ BM25 model loaded!")
 
+    print("🔄 Đang load Article Info...")
+    article_info = _load_article_info()
+    print("✅ Article Info loaded!")
+
+    print("🔄 Đang khởi tạo OpenAI Client...")
+    client = openai.OpenAI(api_key=API_KEY)
+    print("✅ OpenAI Client initialized!")
+
+    print("🚀 Hệ thống đã sẵn sàng!")
+
+    return bm25_model, article_info, client
+
+bm25_model, article_info, client = load_models()
+
+# Bắt đầu Streamlit UI
+def main():
     st.title("Hệ thống Hỏi đáp pháp luật tự động")  
     st.write("Hãy đưa ra bất cứ câu hỏi pháp lý nào, chúng tôi sẽ trả lời dựa trên các điều luật liên quan.")
 
-    # Without Reset button ----------------------------------------------------------------------------------
-    # Create input text area for user question
     user_question = st.text_area("Điền câu hỏi pháp lý tại đây:", height=100)
 
     if st.button("Trả lời"):
         if user_question:
             with st.spinner("Tìm kiếm điều luật liên quan..."):
-                # Retrieve relevant documents using bert_ensemble
+                print("🔍 Đang tìm kiếm điều luật liên quan...")
                 relevant_docs = bert_ensemble(bm25_model, article_info, user_question)
-            
+
             if relevant_docs:
                 with st.spinner("Tạo câu trả lời..."):
-                    # Generate and display the answer
                     answer = generate_answer(client, relevant_docs, user_question)
                     st.subheader("Trả lời:")
                     st.write(answer)
 
-                # Show relevant documents
                 st.subheader("Điều luật liên quan:")
                 for doc in relevant_docs:
-                    # Create clickable title with href
                     title = f"Điều {doc['article_id']} {doc['title']}" if doc['title'] else f"Điều {doc['article_id']}"
                     st.markdown(f"[{title}]({doc['href']})")
-                    
-                    # Add content in a dropdown
                     with st.expander("Xem nội dung"):
                         st.write(doc['article_title'] + "\n" + doc['content'])
             else:
@@ -53,57 +62,8 @@ def main():
         else:
             st.warning("Vui lòng điền câu hỏi của bạn.")
 
-
-    # # Change (with reset button) -------------------------------------------------------------------
-    # # CURRENTLY BUGGED (Reset 2 lần thì nó hiện nút reset cũ)
-    # if 'user_question' not in st.session_state:
-    #     st.session_state.user_question = ''
-    # if 'relevant_docs' not in st.session_state:
-    #     st.session_state.relevant_docs = None
-
-    # # Create input text area for user question
-    # user_question = st.text_area("Enter your legal question:", height=100, value=st.session_state.user_question)
-
-    # if st.button("Get Answer"):
-    #     if user_question:
-    #         st.session_state.user_question = user_question
-    #         with st.spinner("Retrieving relevant documents..."):
-    #             # Retrieve relevant documents using bert_ensemble
-    #             st.session_state.relevant_docs = bert_ensemble(user_question)
-            
-    #         if st.session_state.relevant_docs:
-    #             # Show relevant documents
-    #             st.subheader("Relevant Legal Articles:")
-    #             for doc in st.session_state.relevant_docs:
-    #                 # Create clickable title with href
-    #                 title = f"Điều {doc['article_id']} {doc['title']}" if doc['title'] else f"Điều {doc['article_id']}"
-    #                 st.markdown(f"[{title}]({doc['href']})")
-                    
-    #                 # Add content in a dropdown
-    #                 with st.expander("Show Content"):
-    #                     st.write(doc['content'])
-
-    #             with st.spinner("Generating answer..."):
-    #                 # Generate and display the answer
-    #                 answer = generate_answer(st.session_state.relevant_docs, st.session_state.user_question)
-    #                 st.subheader("Answer:")
-    #                 st.write(answer)
-    #         else:
-    #             st.error("No relevant documents found. Please try rephrasing your question.")
-    #     else:
-    #         st.warning("Please enter a question.")
-
-
-    # # Add a reset button
-    # if st.button("Reset"):
-    #     st.session_state.user_question = ''
-    #     st.session_state.relevant_docs = None
-    #     st.experimental_rerun()
-
-    # Add footer
     st.markdown("---")
     st.markdown("*Hệ thống Hỏi đáp pháp luật tự động tạo bởi nhóm BabyFour.*")
 
 if __name__ == "__main__":
     main()
-
