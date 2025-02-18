@@ -21,13 +21,10 @@ Run BM25
 python bm25.py
 ```
 
-Run StreamlitStreamlit
+Run Streamlit
 ```
-python bm25.py
 streamlit run streamlit.py
 ```
-
-Remember to remove the api_key afterwards!!!
 
 ## Note
 - Dùng bản data14 (không dùng 12 nữa) --> DONEDONE
