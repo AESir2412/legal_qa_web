@@ -27,7 +27,7 @@ streamlit run streamlit.py
 ```
 
 ## Note
-- Dùng bản data14 (không dùng 12 nữa) --> DONEDONE
+- Dùng bản data14 (không dùng 12 nữa) --> DONE
 
 
 ## To-do list
