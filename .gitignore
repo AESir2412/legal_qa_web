@@ -8,4 +8,5 @@ data/*
 __pycache__ 
 model_predictions.json 
 
-
+# environment
+.env

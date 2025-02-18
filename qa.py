@@ -1,6 +1,10 @@
 import openai
-from constant import *
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 def generate_answer(relevant_docs, user_question):
    # Construct the prompt for the GPT model
@@ -32,6 +36,3 @@ def generate_answer(relevant_docs, user_question):
 
     print("Done QA!")
     return answer
-
-if __name__ == "__main__":
-    main()

@@ -11,8 +11,13 @@ from transformers import BertTokenizer, BertForSequenceClassification, TrainingA
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 from bm25 import bm25  # Importing the BM25 function
-from constant import * 
+from dotenv import load_dotenv
 
+load_dotenv()
+
+TOKEN_BERT_MODEL = os.getenv("TOKEN_BERT_MODEL")
+BERT_MODEL = os.getenv("BERT_MODEL")
+FINAL_K = os.getenv("FINAL_K")
 
 print(torch.cuda.is_available())  
 torch.cuda.set_device(0)
@@ -203,8 +208,8 @@ def ensemble_score(df, w_bm25, w_bert):  # Added default values
     df["ensemble_score"] = w_bm25 * df["bm25_score_scaled"] + w_bert * df["bert_score"]
     return df
 
-def bert_ensemble(query):
-    bm25_result = bm25(query)
+def bert_ensemble(bm25_model, article_info, query):
+    bm25_result = bm25(bm25_model, article_info, query)
     df = pd.DataFrame(bm25_result)
     df['labels'] = 0
     private_dataset = MultilingualBertDataset(df["query"], df["content"], df["labels"])
@@ -222,9 +227,3 @@ def bert_ensemble(query):
     print("Done BERT and Ensemble!")
 
     return output
-
-if __name__ == "__main__":
-    main()
-    # query = DUMMY_QUERY
-    # bert_ensemble(query)
-  

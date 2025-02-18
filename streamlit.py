@@ -3,7 +3,12 @@ import os
 from retrieval import bert_ensemble
 from qa import generate_answer
 
+from bm25 import bm25_compute_docs, _load_bm25_model, _load_article_info
+
 def main():
+    bm25_model = _load_bm25_model()
+    article_info = _load_article_info()
+
     st.title("Hệ thống Hỏi đáp pháp luật tự động")  
     st.write("Hãy đưa ra bất cứ câu hỏi pháp lý nào, chúng tôi sẽ trả lời dựa trên các điều luật liên quan.")
 
@@ -15,7 +20,7 @@ def main():
         if user_question:
             with st.spinner("Tìm kiếm điều luật liên quan..."):
                 # Retrieve relevant documents using bert_ensemble
-                relevant_docs = bert_ensemble(user_question)
+                relevant_docs = bert_ensemble(bm25_model, article_info, user_question)
             
             if relevant_docs:
                 with st.spinner("Tạo câu trả lời..."):
