@@ -23,7 +23,6 @@ python bm25.py
 
 Run Streamlit
 ```
-python bm25.py
 streamlit run streamlit.py
 ```
 
@@ -38,6 +37,3 @@ streamlit run streamlit.py
 - Make it more pretty??? Idk 
 - Add other features: Feedback to email?, Report error?? --> cô bảo k cần (low priority)
 - Nên làm thêm cái stream generate
-- BM25 elastic search --> Done (BM25s nhanh gấp 2-3 lần elk)
-- highlight text in law
-
