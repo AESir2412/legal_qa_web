@@ -37,3 +37,4 @@ streamlit run streamlit.py
 - Make it more pretty??? Idk 
 - Add other features: Feedback to email?, Report error?? --> cô bảo k cần (low priority)
 - Nên làm thêm cái stream generate
+- Thêm highlight text ở đllq
