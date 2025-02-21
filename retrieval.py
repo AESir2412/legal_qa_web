@@ -238,7 +238,7 @@ def bert_ensemble(bm25s_retriever, article_info, query):
     
     model_output = model_predict(df, private_dataset, local_trainer, True)
     model_output_ens = ensemble_score(model_output, 0.75, 0.25)
-    print(len(model_output_ens))
+    print(len(model_output_ens)) #Fix chô nãy nữa huân ơi :< (nó luôn là 100) vì t quá lười để đọc code <33
 
     # model_output_ens = model_output_ens.nlargest(FINAL_K, 'ensemble_score')
     # output = model_output_ens.to_dict(orient='records')
