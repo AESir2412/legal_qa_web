@@ -4,7 +4,8 @@ from retrieval import bert_ensemble
 from qa import generate_answer
 import openai
 from dotenv import load_dotenv
-from bm25 import _load_bm25_model, _load_article_info
+# from bm25 import _load_bm25_model, _load_article_info
+from bm25 import _load_bm25s_retriever, _load_article_info
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -15,7 +16,8 @@ def load_models():
     print("⚡ Đang khởi động hệ thống...")
 
     print("🔄 Đang load BM25 model...")
-    bm25_model = _load_bm25_model()
+    # bm25_model = _load_bm25_model()
+    bm25s_retriever = _load_bm25s_retriever()
     print("✅ BM25 model loaded!")
 
     print("🔄 Đang load Article Info...")
@@ -28,9 +30,11 @@ def load_models():
 
     print("🚀 Hệ thống đã sẵn sàng!")
 
-    return bm25_model, article_info, client
+    # return bm25_model, article_info, client
+    return bm25s_retriever, article_info, client
 
-bm25_model, article_info, client = load_models()
+# bm25_model, article_info, client = load_models()
+bm25s_retriever, article_info, client = load_models()
 
 # Bắt đầu Streamlit UI
 def main():
@@ -43,7 +47,7 @@ def main():
         if user_question:
             with st.spinner("Tìm kiếm điều luật liên quan..."):
                 print("🔍 Đang tìm kiếm điều luật liên quan...")
-                relevant_docs = bert_ensemble(bm25_model, article_info, user_question)
+                relevant_docs = bert_ensemble(bm25s_retriever, article_info, user_question)
 
             if relevant_docs:
                 with st.spinner("Tạo câu trả lời..."):

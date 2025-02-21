@@ -5,12 +5,14 @@ import numpy as np
 
 import torch.nn as nn
 import pandas as pd
+import time 
 
 from transformers import BertTokenizer, BertForSequenceClassification, TrainingArguments, Trainer
 
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
-from bm25 import bm25  # Importing the BM25 function
+# from bm25 import bm25  # Importing the BM25 function
+from bm25 import BM25s
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -170,7 +172,6 @@ class CustomTrainer(Trainer):
         labels = inputs.pop("labels")
         outputs = model(**inputs)
         logits = softmax_model(outputs.get("logits"))
-#         print(labels, logits)
         
         loss_fct = nn.CrossEntropyLoss(weight=(torch.tensor([1.0, 3.0])).to("cuda"))
         loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
@@ -201,29 +202,53 @@ local_trainer = CustomTrainer(
     compute_metrics=compute_metrics,
 )
 
-def ensemble_score(df, w_bm25, w_bert):  # Added default values
+def ensemble_score(df, w_bm25, w_bert): 
     for i in range(len(df)):
         if df["bm25_score_scaled"][i] > 1:
             df["bm25_score_scaled"][i] = 1
     df["ensemble_score"] = w_bm25 * df["bm25_score_scaled"] + w_bert * df["bert_score"]
     return df
 
-def bert_ensemble(bm25_model, article_info, query):
-    bm25_result = bm25(bm25_model, article_info, query)
+# def bert_ensemble(bm25_model, article_info, query):
+#     bm25_result = bm25(bm25_model, article_info, query)
+#     df = pd.DataFrame(bm25_result)
+#     df['labels'] = 0
+#     private_dataset = MultilingualBertDataset(df["query"], df["content"], df["labels"])
+    
+#     model_output = model_predict(df, private_dataset, local_trainer, True)
+#     model_output_ens = ensemble_score(model_output, 0.75, 0.25)
+
+#     model_output_ens = model_output_ens.nlargest(FINAL_K, 'ensemble_score')
+
+#     output = model_output_ens.to_dict(orient='records')
+#     # with open('model_predictions.json', 'w', encoding='utf-8') as f:
+#     #     json.dump(output, f, ensure_ascii=False, indent=4)
+
+#     print("Done BERT and Ensemble!")
+
+#     return output
+
+
+def bert_ensemble(bm25s_retriever, article_info, query):
+    start_time = time.time()  
+    bm25_result = BM25s(bm25s_retriever, article_info, query)
     df = pd.DataFrame(bm25_result)
     df['labels'] = 0
     private_dataset = MultilingualBertDataset(df["query"], df["content"], df["labels"])
     
     model_output = model_predict(df, private_dataset, local_trainer, True)
     model_output_ens = ensemble_score(model_output, 0.75, 0.25)
+    print(len(model_output_ens))
 
-    # Sort by ensemble_score in descending order and take top- FINAL K
-    model_output_ens = model_output_ens.nlargest(FINAL_K, 'ensemble_score')
+    # model_output_ens = model_output_ens.nlargest(FINAL_K, 'ensemble_score')
+    # output = model_output_ens.to_dict(orient='records')
 
-    output = model_output_ens.to_dict(orient='records')
-    # with open('model_predictions.json', 'w', encoding='utf-8') as f:
-    #     json.dump(output, f, ensure_ascii=False, indent=4)
+    threshold = 0.85 #Không biết có đúng không đâu =)))))))))
+    max_ensemble_score = model_output_ens['ensemble_score'].max()
+    relevant_candidates = model_output_ens[model_output_ens['ensemble_score'] >= threshold * max_ensemble_score]
+    output = relevant_candidates.to_dict(orient='records')
 
-    print("Done BERT and Ensemble!")
+    end_time = time.time() 
+    print(f"Done BERT and Ensemble! Time taken: {end_time - start_time:.2f} seconds")
 
     return output
