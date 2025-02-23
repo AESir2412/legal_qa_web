@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from retrieval import bert_ensemble
-from qa import generate_answer
+from qa import generate_answer, stream_generate_answer
 import openai
 from dotenv import load_dotenv
 # from bm25 import _load_bm25_model, _load_article_info
@@ -50,10 +50,14 @@ def main():
                 relevant_docs = bert_ensemble(bm25s_retriever, article_info, user_question)
 
             if relevant_docs:
-                with st.spinner("Tạo câu trả lời..."):
-                    answer = generate_answer(client, relevant_docs, user_question)
-                    st.subheader("Trả lời:")
-                    st.write(answer)
+                st.subheader("Trả lời:")
+                answer_placeholder = st.empty()  # Tạo vùng trống để hiển thị câu trả lời
+
+                # Gọi hàm `generate_answer` và hiển thị kết quả từng phần
+                full_answer = ""
+                for partial_answer in stream_generate_answer(client, relevant_docs, user_question):
+                    full_answer += partial_answer
+                    answer_placeholder.markdown(full_answer)  # Cập nhật nội dung dần dần
 
                 st.subheader("Điều luật liên quan:")
                 for doc in relevant_docs:
