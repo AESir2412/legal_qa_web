@@ -11,3 +11,4 @@ accelerate
 openai
 python-dotenv
 joblib
+scikit-learn

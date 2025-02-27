@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 # from bm25 import _load_bm25_model, _load_article_info
 from bm25 import _load_bm25s_retriever, _load_article_info
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
@@ -36,6 +39,25 @@ def load_models():
 # bm25_model, article_info, client = load_models()
 bm25s_retriever, article_info, client = load_models()
 
+
+# Function to highlight similar sentences with a yellow background
+def highlight_similar_sentences_tfidf(answer, doc_content, similarity_threshold=0.5):
+    answer_sentences = answer.split('. ')
+    doc_sentences = doc_content.split('. ')
+
+    vectorizer = TfidfVectorizer().fit(answer_sentences + doc_sentences)
+    answer_vectors = vectorizer.transform(answer_sentences)
+    doc_vectors = vectorizer.transform(doc_sentences)
+
+    highlighted_content = []
+    for i, doc_vector in enumerate(doc_vectors):
+        if any(cosine_similarity(doc_vector, answer_vector) > similarity_threshold for answer_vector in answer_vectors):
+            highlighted_content.append(f"<span style='background-color: yellow'>{doc_sentences[i]}</span>")  # Highlight with yellow background
+        else:
+            highlighted_content.append(doc_sentences[i])
+
+    return '. '.join(highlighted_content)
+
 # Bắt đầu Streamlit UI
 def main():
     st.title("Hệ thống Hỏi đáp pháp luật tự động")  
@@ -64,7 +86,8 @@ def main():
                     title = f"Điều {doc['article_id']} {doc['title']}" if doc['title'] else f"Điều {doc['article_id']}"
                     st.markdown(f"[{title}]({doc['href']})")
                     with st.expander("Xem nội dung"):
-                        st.write(doc['article_title'] + "\n" + doc['content'])
+                        highlighted_content = highlight_similar_sentences_tfidf(full_answer, doc['content'])
+                        st.markdown(highlighted_content, unsafe_allow_html=True)  # Allow HTML for highlighting
             else:
                 st.error("Không tìm thấy nội dung liên quan nào. Hãy thử xem lại nội dung câu hỏi của bạn.")
         else:
