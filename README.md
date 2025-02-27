@@ -36,5 +36,6 @@ streamlit run streamlit.py
 - Change to Vietnamese --> DONE
 - Make it more pretty??? Idk 
 - Add other features: Feedback to email?, Report error?? --> cô bảo k cần (low priority)
-- Nên làm thêm cái stream generate
-- Thêm highlight text ở đllq
+- Nên làm thêm cái stream generate --> DONE
+- Thêm highlight text ở đllq --> DONE 
+- Recheck tham số ensemble =))) 
