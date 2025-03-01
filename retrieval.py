@@ -1,25 +1,19 @@
 import os
-import json
 import torch
-import numpy as np  
 
 import torch.nn as nn
 import pandas as pd
 import time 
 
-from transformers import BertTokenizer, BertForSequenceClassification, TrainingArguments, Trainer
-
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-# from bm25 import bm25  # Importing the BM25 function
+from transformers import BertTokenizer, BertForSequenceClassification, Trainer
 from bm25 import BM25s
 from dotenv import load_dotenv
+from preload_model import model, tokenizer
 
 load_dotenv()
 
 TOKEN_BERT_MODEL = os.getenv("TOKEN_BERT_MODEL")
 BERT_MODEL = os.getenv("BERT_MODEL")
-FINAL_K = int(os.getenv("FINAL_K"))
 
 print(torch.cuda.is_available())  
 torch.cuda.set_device(0)
@@ -36,7 +30,7 @@ class MultilingualBertDataset(torch.utils.data.Dataset):
         self.questions = questions
         self.articles = articles
         self.labels = labels
-        self.tokenizer = BertTokenizer.from_pretrained(TOKEN_BERT_MODEL)
+        self.tokenizer = tokenizer
 
     def __len__(self):
         return len(self.labels)
@@ -90,10 +84,6 @@ def model_predict(local_data, local_dataset, model_trainner, is_scale):
     return output_dataset
 
 # -----------------------------------------------------------------------------
-model = BertForSequenceClassification.from_pretrained(
-        BERT_MODEL, 
-        num_labels = 2)
-
 softmax_model = nn.Softmax(dim=1)
 
 local_trainer = Trainer(
@@ -117,12 +107,9 @@ def bert_ensemble(bm25s_retriever, article_info, query):
     
     model_output = model_predict(df, private_dataset, local_trainer, True)
     model_output_ens = ensemble_score(model_output, 0.75, 0.25)
-    print(len(model_output_ens)) #Fix chô nãy nữa huân ơi :< (nó luôn là 100) vì t quá lười để đọc code <33
-
-    # model_output_ens = model_output_ens.nlargest(FINAL_K, 'ensemble_score')
-    # output = model_output_ens.to_dict(orient='records')
-
-    threshold = 0.85 #Không biết có đúng không đâu =)))))))))
+    print(len(model_output_ens)) 
+    
+    threshold = 0.85 
     max_ensemble_score = model_output_ens['ensemble_score'].max()
     relevant_candidates = model_output_ens[model_output_ens['ensemble_score'] >= threshold * max_ensemble_score]
     output = relevant_candidates.to_dict(orient='records')

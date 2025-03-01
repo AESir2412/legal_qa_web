@@ -1,10 +1,9 @@
 import streamlit as st
 import os
 from retrieval import bert_ensemble
-from qa import generate_answer, stream_generate_answer
+from qa import stream_generate_answer
 import openai
 from dotenv import load_dotenv
-# from bm25 import _load_bm25_model, _load_article_info
 from bm25 import _load_bm25s_retriever, _load_article_info
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -19,7 +18,7 @@ def load_models():
     print("⚡ Đang khởi động hệ thống...")
 
     print("🔄 Đang load BM25 model...")
-    # bm25_model = _load_bm25_model()
+
     bm25s_retriever = _load_bm25s_retriever()
     print("✅ BM25 model loaded!")
 
@@ -33,10 +32,8 @@ def load_models():
 
     print("🚀 Hệ thống đã sẵn sàng!")
 
-    # return bm25_model, article_info, client
     return bm25s_retriever, article_info, client
 
-# bm25_model, article_info, client = load_models()
 bm25s_retriever, article_info, client = load_models()
 
 
@@ -68,18 +65,16 @@ def main():
     if st.button("Trả lời"):
         if user_question:
             with st.spinner("Tìm kiếm điều luật liên quan..."):
-                print("🔍 Đang tìm kiếm điều luật liên quan...")
                 relevant_docs = bert_ensemble(bm25s_retriever, article_info, user_question)
 
             if relevant_docs:
                 st.subheader("Trả lời:")
-                answer_placeholder = st.empty()  # Tạo vùng trống để hiển thị câu trả lời
+                answer_placeholder = st.empty()
 
-                # Gọi hàm `generate_answer` và hiển thị kết quả từng phần
                 full_answer = ""
                 for partial_answer in stream_generate_answer(client, relevant_docs, user_question):
                     full_answer += partial_answer
-                    answer_placeholder.markdown(full_answer)  # Cập nhật nội dung dần dần
+                    answer_placeholder.markdown(full_answer)  # Stream generation
 
                 st.subheader("Điều luật liên quan:")
                 for doc in relevant_docs:

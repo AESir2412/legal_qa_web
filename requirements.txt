@@ -1,14 +1,10 @@
-streamlit
-numpy
-pandas
 scikit-learn
 --extra-index-url https://download.pytorch.org/whl/cu124
 torch==2.5.1+cu124
-# rank-bm25
 bm25s
 transformers
 accelerate
 openai
 python-dotenv
-joblib
-scikit-learn
+streamlit
+

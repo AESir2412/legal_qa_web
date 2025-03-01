@@ -1,11 +1,9 @@
 import os
-from dotenv import load_dotenv
-# from rank_bm25 import BM25Okapi
 import bm25s
 import json
 import re
-import joblib
 import time
+from dotenv import load_dotenv
 
 
 load_dotenv()
@@ -55,12 +53,6 @@ def preprocess_articles(data):
     return articles, article_info
 
 
-# def _save_bm25_model(bm25_model, filename="data/bm25_model.joblib"):
-#     joblib.dump(bm25_model, filename)
-
-# def _load_bm25_model(filename="data/bm25_model.joblib"):
-#     return joblib.load(filename)
-
 def _save_bm25s_retriever(retriever, filename='data/bm25s_retriever'):
     retriever.save(filename)
 
@@ -77,14 +69,6 @@ def _load_article_info(filename="data/article_info.json"):
         return json.load(f)
 
 
-# def bm25_compute_docs(law_path):
-#     data = _load_json(law_path)
-#     articles, article_info = preprocess_articles(data)
-#     bm25_model = BM25Okapi(articles)
-#     _save_bm25_model(bm25_model)
-#     _save_article_info(article_info)
-
-
 def bm25s_compute_docs(law_path):
     data = _load_json(law_path)
     articles, article_info = preprocess_articles(data)
@@ -93,25 +77,6 @@ def bm25s_compute_docs(law_path):
     _save_bm25s_retriever(bm25s_retriever, 'data/bm25s_retriever')
     _save_article_info(article_info)
 
-
-# def bm25_retrieve(bm25_model, article_info, query, k=5):
-#     """Returns full information of top-k relevant articles using BM25 scoring."""
-#     tokenized_query = _tokenize(query)
-#     scores = bm25_model.get_scores(tokenized_query)
-    
-#     ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
-#     top_k_articles = []
-    
-#     max_score = max(scores) if len(scores) > 0 else 1
-    
-#     for i in ranked_indices:
-#         article = article_info[i].copy()
-#         article["bm25_score"] = scores[i]
-#         article["bm25_score_scaled"] = scores[i] / max_score if max_score > 0 else 0
-#         article["query"] = query
-#         top_k_articles.append(article)
-    
-#     return top_k_articles
 
 def bm25s_retrieve(bm25s_retriever, article_info, query, k):
     """Returns full information of top-k relevant articles using BM25s scoring."""
@@ -134,18 +99,6 @@ def bm25s_retrieve(bm25s_retriever, article_info, query, k):
     return top_k_articles
 
 
-# def bm25(bm25_model, article_info, query):
-#     top_k_results = bm25_retrieve(bm25_model, article_info, query, K)
-#     top_k_results = bm25s_retrieve(bm25_model, article_info, query, K)
-
-#     # with open("top_k_results.json", "w", encoding="utf-8") as f:
-#     #     json.dump(top_k_results, f, indent=2, ensure_ascii=False)
-
-#     print("Done BM25!")
-
-#     return top_k_results
-
-
 def BM25s(bm25s_retriever, article_info, query):
     start_time = time.time()  
     top_k_results = bm25s_retrieve(bm25s_retriever, article_info, query, K)
@@ -155,6 +108,4 @@ def BM25s(bm25s_retriever, article_info, query):
 
 
 if __name__ == "__main__":
-    # bm25_compute_docs(LAW_PATH)
     bm25s_compute_docs(LAW_PATH)
-    # _load_bm25s_retriever()
