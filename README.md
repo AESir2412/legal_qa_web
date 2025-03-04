@@ -16,9 +16,12 @@ cd legal_qa_web
 Create a `.env` file by following the structure provided in the `.env-example` template.
 
 ### 3. Install Dependencies
-Ensure you have all required dependencies installed:
+Set up your virtual environment (change the `venv_name` to your own, add it to `.gitignore` afterwards), and ensure you have all required dependencies installed:
 
 ```sh
+python -m venv venv_name
+.\venv_name\Scripts\activate.bat
+
 pip install -r requirements.txt
 ```
 
