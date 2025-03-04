@@ -6,7 +6,6 @@ data/*
 
 # Others
 __pycache__ 
-*.json 
 
 # environment
 .env
